@@ -6,14 +6,35 @@ import (
 	"io"
 	"io/ioutil"
 	"net"
+	"os"
+	"strings"
 
 	"github.com/pkg/errors"
 )
+
+// New generates ... a new world ...
+func New() *World {
+	return &World{}
+}
+
+// Env lazily loads environment variables.
+func (w *World) Env() Env {
+	if w.env == nil {
+		env := Env{}
+		for _, kv := range os.Environ() {
+			elems := strings.SplitN(kv, "=", 2)
+			env[elems[0]] = elems[1]
+		}
+		w.env = &env
+	}
+	return *w.env
+}
 
 // World acts as a container for all the knowledge we want to expose through
 // the template.
 type World struct {
 	Network Network
+	env     *Env
 }
 
 // Render takes a template stream as input and converts the world's knowledge

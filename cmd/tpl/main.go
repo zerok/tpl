@@ -40,7 +40,7 @@ func main() {
 	}
 	defer fp.Close()
 
-	w := world.World{}
+	w := world.New()
 	if err := w.Render(os.Stdout, fp); err != nil {
 		log.WithError(err).Fatal("Failed to render")
 	}
