@@ -1,6 +1,14 @@
-# tpl
+<div style="text-align: center">
+<h1 style="text-align: center">TPL</h1>
 
-A simple template-to-stdout renderer with support for various data sources.
+<p>A simple template-to-stdout renderer with support for various data sources.</p>
+
+<p>
+<a href="/LICENSE"><img alt="MIT Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square"></a>
+<a href="https://saythanks.io/to/zerok"><img alt="Say Thanks!" src="https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg"></a>
+</p>
+
+</div>
 
 ## Supported data points
 
