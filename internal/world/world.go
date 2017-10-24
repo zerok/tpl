@@ -9,12 +9,23 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 )
 
+type Options struct {
+	Logger *logrus.Logger
+}
+
 // New generates ... a new world ...
-func New() *World {
-	return &World{}
+func New(opts *Options) *World {
+	if opts == nil {
+		opts = &Options{}
+	}
+	w := &World{
+		logger: opts.Logger,
+	}
+	return w
 }
 
 // Env lazily loads environment variables.
@@ -33,6 +44,7 @@ func (w *World) Env() Env {
 // World acts as a container for all the knowledge we want to expose through
 // the template.
 type World struct {
+	logger  *logrus.Logger
 	Network Network
 	env     *Env
 }
