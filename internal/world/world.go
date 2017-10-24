@@ -47,6 +47,7 @@ type World struct {
 	logger  *logrus.Logger
 	Network Network
 	env     *Env
+	vault   *Vault
 }
 
 // Render takes a template stream as input and converts the world's knowledge
@@ -56,11 +57,19 @@ func (w *World) Render(out io.Writer, in io.Reader) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to read template")
 	}
-	tmpl, err := template.New("ROOT").Parse(string(rawTmpl))
+	tmpl, err := template.New("ROOT").Funcs(w.Funcs()).Parse(string(rawTmpl))
 	if err != nil {
 		return errors.Wrap(err, "failed to parse template")
 	}
 	return tmpl.Execute(out, w)
+}
+
+func (w *World) Funcs() template.FuncMap {
+	funcs := template.FuncMap{}
+	funcs["vault"] = func(path, field string) string {
+		return w.Vault().Secret(path, field)
+	}
+	return funcs
 }
 
 // Network contains knowledge about the local network.
