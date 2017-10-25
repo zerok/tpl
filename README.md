@@ -52,3 +52,30 @@ test-value
 
 **Note:** If you also specify a `--vault-prefix`, this will be applied *before*
 the path is mapped.
+
+## Third-party libraries
+
+This tool wouldn't be possible (or at least would have been a lot harder to
+write) without the great work of the Go community. The following libraries are
+used:
+
+* https://github.com/Sirupsen/logrus
+* https://github.com/fatih/structs
+* https://github.com/golang/snappy
+* https://github.com/hashicorp/errwrap
+* https://github.com/hashicorp/go-cleanhttp
+* https://github.com/hashicorp/go-multierror
+* https://github.com/hashicorp/go-rootcerts
+* https://github.com/hashicorp/hcl
+* https://github.com/hashicorp/vault
+* https://github.com/mitchellh/go-homedir
+* https://github.com/mitchellh/mapstructure
+* https://github.com/pkg/errors
+* https://github.com/sethgrid/pester
+* https://github.com/spf13/pflag
+* https://golang.org/x/crypto
+* https://golang.org/x/net
+* https://golang.org/x/sys
+* https://golang.org/x/text
+
+Big thanks to everyone who has contributed to any of these projects!
