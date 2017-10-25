@@ -1,3 +1,4 @@
+//go:generate license-notice
 package main
 
 import (
@@ -21,6 +22,7 @@ func main() {
 	var showVersion bool
 	var vaultMapping string
 	var verbose bool
+	var showLicenseInfo bool
 
 	pflag.Usage = func() {
 		fmt.Println("Usage: tpl [options] template-file\n")
@@ -31,6 +33,7 @@ func main() {
 	pflag.StringVar(&vaultMapping, "vault-mapping", "", "Key mapping file for Vault keys")
 	pflag.BoolVar(&verbose, "verbose", false, "Verbose log output")
 	pflag.BoolVar(&showVersion, "version", false, "Show version information")
+	pflag.BoolVar(&showLicenseInfo, "licenses", false, "Show licenses of used libraries")
 	pflag.Parse()
 
 	if verbose {
@@ -39,6 +42,17 @@ func main() {
 
 	if showVersion {
 		fmt.Printf("Version: %s\nCommit: %s\nBuild date: %s\n", version, commit, date)
+		os.Exit(0)
+	}
+
+	if showLicenseInfo {
+		fmt.Println("The following 3rd-party libraries have been used to create this project:\n\n\n")
+		for _, li := range getLicenseInfos() {
+			fmt.Printf("============================================================\n")
+			fmt.Printf("https://%s\n", li.Package)
+			fmt.Printf("------------------------------------------------------------\n\n")
+			fmt.Printf("%s\n\n", li.LicenseText)
+		}
 		os.Exit(0)
 	}
 
