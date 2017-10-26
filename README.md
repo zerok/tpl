@@ -7,6 +7,46 @@
 
 ------------------------------------------------------------------------------
 
+The original motivation behind tpl was that we had docker-compose files that
+needed to reference things like secrets from an external Vault instance. In
+order to do that we needed to know the external IP address inside the
+configuration file. While things like [container-juggler][] solve that for
+docker-compose files, we wanted a slighly more generic tool for use in other
+environments. Being able to access secrets directly from a Vault instance was
+also very high on the requirements-list 😉
+
+Let's look at a small example where we have a service that should be able to
+talk to a Vault server running on the host system:
+
+```
+version: "3"
+services:
+    core-service:
+        external_hosts:
+            - "vault:{{ .Network.ExternalIP }}"
+        ...
+```
+
+tpl now parses that docker-compose file, attempts to set all the variables it
+find in it (see the reference down below for details on what variables and
+functions are available), and writes its output to standard-output:
+
+```
+$ tpl docker-compose.yml
+version: "3"
+services:
+    core-service:
+        external_hosts:
+            - "vault:123.123.123.123"
+        ...
+```
+
+Depending on what data points you want to use inside your template you might
+also have to set specific environment variables (like `VAULT_ADDR` and
+`VAULT_TOKEN` for interacting with a Vault server). You can find details
+for what datapoints are available and what settings they might require in the
+next chapter.
+
 ## Supported data points
 
 ### Network information
@@ -79,3 +119,5 @@ used:
 * https://golang.org/x/text
 
 Big thanks to everyone who has contributed to any of these projects!
+
+[container-juggler]: https://github.com/sgeisbacher/container-juggler
