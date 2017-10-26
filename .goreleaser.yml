@@ -20,7 +20,7 @@ archive:
     .Arm }}{{ end }}'
   files:
   - README.md
-  - LICENCE
+  - LICENSE
 snapshot:
   name_template: SNAPSHOT-{{ .Commit }}
 checksum:
