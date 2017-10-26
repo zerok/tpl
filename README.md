@@ -47,6 +47,29 @@ also have to set specific environment variables (like `VAULT_ADDR` and
 for what datapoints are available and what settings they might require in the
 next chapter.
 
+
+## Installation
+
+You have a couple of options to install tpl:
+
+* If you're on macOS and are using [brew](https://brew.sh/):
+  
+  ```
+  $ brew tap zerok/main https://github.com/zerok/homebrew-tap
+  $ brew install zerok/main/tpl
+  ```
+
+* If you want to install tpl manually, you can find binaries for all releases
+  on [Github](https://github.com/zerok/tpl/releases).
+
+* If you have Go installed, you can also install directly from the master
+  branch:
+  
+  ```
+  $ go get -u github.com/zerok/tpl/cmd/tpl
+  ```
+
+
 ## Supported data points
 
 ### Network information
