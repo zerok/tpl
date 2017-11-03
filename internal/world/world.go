@@ -2,12 +2,12 @@ package world
 
 import (
 	"fmt"
-	"html/template"
 	"io"
 	"io/ioutil"
 	"net"
 	"os"
 	"strings"
+	"text/template"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
