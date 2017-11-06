@@ -6,6 +6,9 @@ tpl: $(shell find . -name '*.go')
 install:
 	cd cmd/tpl && go install
 
+test:
+	go test ./... -v
+
 clean:
 	rm -f tpl
 

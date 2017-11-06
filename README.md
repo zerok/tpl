@@ -116,6 +116,16 @@ test-value
 **Note:** If you also specify a `--vault-prefix`, this will be applied *before*
 the path is mapped.
 
+
+## Different template delimiters
+
+The Go template language used `{{` and `}}` as delimiters for working with
+variables or actions by default. This can become quite tedious when working
+within systems that also use these characters (or at least make the template
+hard to read). For this reason, you can override these delimiters using the
+`--left-delimiter` and `--right-delimiter` command-line flags.
+
+
 ## Third-party libraries
 
 This tool wouldn't be possible (or at least would have been a lot harder to

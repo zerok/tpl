@@ -23,9 +23,11 @@ func main() {
 	var vaultMapping string
 	var verbose bool
 	var showLicenseInfo bool
+	var leftDelim string
+	var rightDelim string
 
 	pflag.Usage = func() {
-		fmt.Println("Usage: tpl [options] template-file\n")
+		fmt.Print("Usage: tpl [options] template-file\n\n")
 		pflag.PrintDefaults()
 	}
 
@@ -34,6 +36,8 @@ func main() {
 	pflag.BoolVar(&verbose, "verbose", false, "Verbose log output")
 	pflag.BoolVar(&showVersion, "version", false, "Show version information")
 	pflag.BoolVar(&showLicenseInfo, "licenses", false, "Show licenses of used libraries")
+	pflag.StringVar(&leftDelim, "left-delimiter", "{{", "Left delimiter used within the Go template system")
+	pflag.StringVar(&rightDelim, "right-delimiter", "}}", "Right delimiter used within the Go template system")
 	pflag.Parse()
 
 	if verbose {
@@ -46,7 +50,7 @@ func main() {
 	}
 
 	if showLicenseInfo {
-		fmt.Println("The following 3rd-party libraries have been used to create this project:\n\n\n")
+		fmt.Print("The following 3rd-party libraries have been used to create this project:\n\n\n\n")
 		for _, li := range getLicenseInfos() {
 			fmt.Printf("============================================================\n")
 			fmt.Printf("https://%s\n", li.Package)
@@ -64,7 +68,7 @@ func main() {
 	}
 	fp, err := os.Open(input)
 	if err != nil {
-		log.WithError(err).Fatalf("Failed to open template %s")
+		log.WithError(err).Fatalf("Failed to open template %s", input)
 	}
 	defer fp.Close()
 

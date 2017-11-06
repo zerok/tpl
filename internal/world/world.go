@@ -14,7 +14,9 @@ import (
 )
 
 type Options struct {
-	Logger *logrus.Logger
+	Logger     *logrus.Logger
+	LeftDelim  string
+	RightDelim string
 }
 
 // New generates ... a new world ...
@@ -23,7 +25,9 @@ func New(opts *Options) *World {
 		opts = &Options{}
 	}
 	w := &World{
-		logger: opts.Logger,
+		logger:     opts.Logger,
+		leftDelim:  opts.LeftDelim,
+		rightDelim: opts.RightDelim,
 	}
 	return w
 }
@@ -44,10 +48,12 @@ func (w *World) Env() Env {
 // World acts as a container for all the knowledge we want to expose through
 // the template.
 type World struct {
-	logger  *logrus.Logger
-	Network Network
-	env     *Env
-	vault   *Vault
+	logger     *logrus.Logger
+	Network    Network
+	env        *Env
+	vault      *Vault
+	leftDelim  string
+	rightDelim string
 }
 
 // Render takes a template stream as input and converts the world's knowledge
@@ -57,7 +63,7 @@ func (w *World) Render(out io.Writer, in io.Reader) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to read template")
 	}
-	tmpl, err := template.New("ROOT").Funcs(w.Funcs()).Parse(string(rawTmpl))
+	tmpl, err := template.New("ROOT").Delims(w.leftDelim, w.rightDelim).Funcs(w.Funcs()).Parse(string(rawTmpl))
 	if err != nil {
 		return errors.Wrap(err, "failed to parse template")
 	}
