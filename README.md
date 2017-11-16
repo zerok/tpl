@@ -72,6 +72,13 @@ You have a couple of options to install tpl:
 
 ## Supported data points
 
+### System information
+
+#### Platform name and architecture
+
+`{{ .System.OS }}` and `{{ .System.Arch }}` can be used to inspect the
+operating system and architecture tpl is executed on.
+
 ### Network information
 
 tpl exposes various data points about your local network.
