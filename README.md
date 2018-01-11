@@ -79,6 +79,12 @@ You have a couple of options to install tpl:
 `{{ .System.OS }}` and `{{ .System.Arch }}` can be used to inspect the
 operating system and architecture tpl is executed on.
 
+#### Shell output
+
+Using `{{ .System.ShellOutput "..." }}` you can open a bash shell, run a
+command inside of it, and work with the output of that command. Note that, for
+now, `/bin/bash` is hardcoded as the path to the shell to be executed.
+
 ### Network information
 
 tpl exposes various data points about your local network.

@@ -13,8 +13,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+var ErrInsecureRequired = errors.New("This feature requires the --insecure flag")
+
 type Options struct {
 	Logger     *logrus.Logger
+	Insecure   bool
 	LeftDelim  string
 	RightDelim string
 }
@@ -28,6 +31,7 @@ func New(opts *Options) *World {
 		logger:     opts.Logger,
 		leftDelim:  opts.LeftDelim,
 		rightDelim: opts.RightDelim,
+		insecure:   opts.Insecure,
 	}
 	return w
 }
@@ -54,6 +58,7 @@ type World struct {
 	vault      *Vault
 	leftDelim  string
 	rightDelim string
+	insecure   bool
 }
 
 // Render takes a template stream as input and converts the world's knowledge

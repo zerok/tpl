@@ -25,6 +25,7 @@ func main() {
 	var showLicenseInfo bool
 	var leftDelim string
 	var rightDelim string
+	var insecure bool
 
 	pflag.Usage = func() {
 		fmt.Print("Usage: tpl [options] template-file\n\n")
@@ -38,6 +39,7 @@ func main() {
 	pflag.BoolVar(&showLicenseInfo, "licenses", false, "Show licenses of used libraries")
 	pflag.StringVar(&leftDelim, "left-delimiter", "{{", "Left delimiter used within the Go template system")
 	pflag.StringVar(&rightDelim, "right-delimiter", "}}", "Right delimiter used within the Go template system")
+	pflag.BoolVar(&insecure, "insecure", false, "Enables features like shell output")
 	pflag.Parse()
 
 	if verbose {
@@ -73,7 +75,8 @@ func main() {
 	defer fp.Close()
 
 	w := world.New(&world.Options{
-		Logger: log,
+		Logger:   log,
+		Insecure: insecure,
 	})
 	if vaultPrefix != "" {
 		w.Vault().Prefix = vaultPrefix
