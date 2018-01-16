@@ -14,20 +14,25 @@ func (w *World) Vault() *Vault {
 	}
 	var client *vault.Client
 	var err error
-	vaultAddr, vaultAddrSet := os.LookupEnv("VAULT_ADDR")
-	vaultToken, vaultTokenSet := os.LookupEnv("VAULT_TOKEN")
-	if vaultAddrSet && vaultTokenSet {
+	var token string
+	vaultConfig := &vault.Config{}
+	if err := vaultConfig.ReadEnvironment(); err != nil {
 		if w.logger != nil {
-			w.logger.Debugf("Connecting to Vault at %s", vaultAddr)
+			w.logger.Warnf("Failed to read Vault configuration: %s", err.Error())
 		}
-		client, err = vault.NewClient(&vault.Config{
-			Address: vaultAddr,
-		})
-		if err == nil {
-			client.SetToken(vaultToken)
+	}
+	client, err = vault.NewClient(vaultConfig)
+	if err == nil {
+		token = os.Getenv("VAULT_TOKEN")
+		if w.logger != nil && token == "" {
+			w.logger.Warnf("VAULT_TOKEN not set. Vault not available.")
+		} else {
+			client.SetToken(token)
 		}
-	} else if w.logger != nil {
-		w.logger.Warnf("VAULT_ADDR and/or VAULT_TOKEN haven't been set. Vault not available!")
+	} else {
+		if w.logger != nil && token == "" {
+			w.logger.Warnf("Failed to create Vault client: %s", err.Error())
+		}
 	}
 
 	w.vault = &Vault{
