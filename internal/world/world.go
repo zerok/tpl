@@ -56,6 +56,7 @@ type World struct {
 	Network    Network
 	env        *Env
 	vault      *Vault
+	FS         FS
 	leftDelim  string
 	rightDelim string
 	insecure   bool

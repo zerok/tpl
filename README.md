@@ -95,6 +95,17 @@ You can access the host's external IP address using
 `{{ .Network.ExternalIP }}`. This can be useful to, for instance, configure
 host services inside a docker-compose file.
 
+### File-system
+
+#### File existance
+
+Especially when working with docker-compose, being able to check if a certain
+file exists before building volume mounts for it:
+
+```
+{{ .FS.Exists "path/to/file" }}
+```
+
 ### Vault secrets
 
 If you have the environment variables `VAULT_ADDR` and `VAULT_TOKEN` set then
