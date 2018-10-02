@@ -9,6 +9,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/Masterminds/sprig"
 	"github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 )
@@ -81,6 +82,11 @@ func (w *World) Funcs() template.FuncMap {
 	funcs["vault"] = func(path, field string) string {
 		return w.Vault().Secret(path, field)
 	}
+
+	for name, fn := range sprig.FuncMap() {
+		funcs[name] = fn
+	}
+
 	return funcs
 }
 
