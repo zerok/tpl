@@ -9,6 +9,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/Masterminds/sprig"
 	"github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 )
@@ -77,10 +78,11 @@ func (w *World) Render(out io.Writer, in io.Reader) error {
 }
 
 func (w *World) Funcs() template.FuncMap {
-	funcs := template.FuncMap{}
+	funcs := template.FuncMap(sprig.FuncMap())
 	funcs["vault"] = func(path, field string) string {
 		return w.Vault().Secret(path, field)
 	}
+
 	return funcs
 }
 
