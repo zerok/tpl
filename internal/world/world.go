@@ -78,7 +78,7 @@ func (w *World) Render(out io.Writer, in io.Reader) error {
 }
 
 func (w *World) Funcs() template.FuncMap {
-	funcs := sprig.FuncMap()
+	funcs := template.FuncMap(sprig.FuncMap())
 	funcs["vault"] = func(path, field string) string {
 		return w.Vault().Secret(path, field)
 	}
