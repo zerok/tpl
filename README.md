@@ -150,6 +150,12 @@ hard to read). For this reason, you can override these delimiters using the
 `--left-delimiter` and `--right-delimiter` command-line flags.
 
 
+## And more...
+
+tpl also bundles [sprig](http://masterminds.github.io/sprig/) which offers lots
+of general-purpose template functions. Please see its website for details.
+
+
 ## Third-party libraries
 
 This tool wouldn't be possible (or at least would have been a lot harder to
@@ -165,6 +171,7 @@ used:
 * https://github.com/hashicorp/go-rootcerts
 * https://github.com/hashicorp/hcl
 * https://github.com/hashicorp/vault
+* https://github.com/Masterminds/sprig
 * https://github.com/mitchellh/go-homedir
 * https://github.com/mitchellh/mapstructure
 * https://github.com/pkg/errors
