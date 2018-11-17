@@ -75,8 +75,10 @@ func main() {
 	defer fp.Close()
 
 	w := world.New(&world.Options{
-		Logger:   log,
-		Insecure: insecure,
+		Logger:     log,
+		Insecure:   insecure,
+		LeftDelim:  leftDelim,
+		RightDelim: rightDelim,
 	})
 	if vaultPrefix != "" {
 		w.Vault().Prefix = vaultPrefix
