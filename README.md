@@ -3,7 +3,7 @@
 <p align="center">A simple template-to-stdout renderer with support for various data sources.</p>
 
 <p align="center"><a href="/LICENSE"><img alt="MIT Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square"></a>
-<a href="https://saythanks.io/to/zerok"><img alt="Say Thanks!" src="https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg"></a><a href="https://dev.azure.com/hgutmann/tpl/_build?definitionId=1"><img alt="Build status" src="https://dev.azure.com/hgutmann/tpl/_apis/build/status/zerok.tpl" /></a></p>
+<a href="https://saythanks.io/to/zerok"><img alt="Say Thanks!" src="https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg"></a></p>
 
 ------------------------------------------------------------------------------
 
