@@ -2,6 +2,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -68,11 +69,18 @@ func main() {
 		pflag.Usage()
 		os.Exit(1)
 	}
-	fp, err := os.Open(input)
-	if err != nil {
-		log.WithError(err).Fatalf("Failed to open template %s", input)
+
+	var rd io.Reader
+	if input == "-" {
+		rd = bufio.NewReader(os.Stdin)
+	} else {
+		fp, err := os.Open(input)
+		if err != nil {
+			log.WithError(err).Fatalf("Failed to open template %s", input)
+		}
+		defer fp.Close()
+		rd = fp
 	}
-	defer fp.Close()
 
 	w := world.New(&world.Options{
 		Logger:     log,
@@ -90,7 +98,7 @@ func main() {
 		}
 		w.Vault().KeyMapping = mapping
 	}
-	if err := w.Render(os.Stdout, fp); err != nil {
+	if err := w.Render(os.Stdout, rd); err != nil {
 		log.WithError(err).Fatal("Failed to render")
 	}
 }
