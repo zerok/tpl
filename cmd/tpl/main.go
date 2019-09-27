@@ -2,7 +2,6 @@
 package main
 
 import (
-	"bufio"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -72,7 +71,7 @@ func main() {
 
 	var rd io.Reader
 	if input == "-" {
-		rd = bufio.NewReader(os.Stdin)
+		rd = os.Stdin
 	} else {
 		fp, err := os.Open(input)
 		if err != nil {
