@@ -58,6 +58,7 @@ type World struct {
 	env        *Env
 	vault      *Vault
 	FS         FS
+	Data       Data
 	leftDelim  string
 	rightDelim string
 	insecure   bool

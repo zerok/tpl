@@ -141,6 +141,34 @@ test-value
 the path is mapped.
 
 
+### Data files
+
+You can load data also from previously generated data-files into the template
+using the `--data` flag:
+
+```
+$ cat test.tpl
+{{ range .Data.items }}> .
+{{ end }}
+
+$ cat test.yaml
+- 1
+- 2
+- 3
+
+$ tpl --data=items=test.yaml test.tpl
+> 1
+> 2
+> 3
+```
+
+Data can be loaded from files using one of these extensions:
+
+- `.json`
+- `.yaml`
+- `.yml`
+
+
 ## Different template delimiters
 
 The Go template language used `{{` and `}}` as delimiters for working with

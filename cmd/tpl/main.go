@@ -99,6 +99,15 @@ func main() {
 		}
 		w.Vault().KeyMapping = mapping
 	}
+	wd, err := os.Getwd()
+	if err != nil {
+		log.WithError(err).Fatal("Failed to determine current working directory.")
+	}
+	d, err := world.LoadData(data, wd)
+	if err != nil {
+		log.WithError(err).Fatalf("Failed to load data")
+	}
+	w.Data = d
 	if err := w.Render(os.Stdout, rd); err != nil {
 		log.WithError(err).Fatal("Failed to render")
 	}
