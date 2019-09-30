@@ -26,6 +26,7 @@ func main() {
 	var leftDelim string
 	var rightDelim string
 	var insecure bool
+	var data []string
 
 	pflag.Usage = func() {
 		fmt.Print("Usage: tpl [options] template-file\n\n")
@@ -40,6 +41,7 @@ func main() {
 	pflag.StringVar(&leftDelim, "left-delimiter", "{{", "Left delimiter used within the Go template system")
 	pflag.StringVar(&rightDelim, "right-delimiter", "}}", "Right delimiter used within the Go template system")
 	pflag.BoolVar(&insecure, "insecure", false, "Enables features like shell output")
+	pflag.StringSliceVar(&data, "data", []string{}, "Data definitions (e.g. --data=name=file.yaml)")
 	pflag.Parse()
 
 	if verbose {
