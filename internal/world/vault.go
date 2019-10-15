@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/pkg/errors"
+
 	"github.com/Sirupsen/logrus"
 	vault "github.com/hashicorp/vault/api"
 )
@@ -52,9 +54,9 @@ type Vault struct {
 	KeyMapping map[string]string
 }
 
-func (v *Vault) Secret(path, field string) string {
+func (v *Vault) Secret(path, field string) (string, error) {
 	if v.client == nil {
-		return ""
+		return "", errors.New("no vault client available")
 	}
 	prefixPath := fmt.Sprintf("%s%s", v.Prefix, path)
 	mapped, ok := v.KeyMapping[prefixPath]
@@ -63,23 +65,14 @@ func (v *Vault) Secret(path, field string) string {
 	}
 	sec, err := v.client.Logical().Read(mapped)
 	if err != nil {
-		if v.logger != nil {
-			v.logger.WithError(err).Errorf("Failed to access Vault path %s", mapped)
-		}
-		return ""
+		return "", errors.Wrapf(err, "failed to access Vault path %s", mapped)
 	}
 	if sec == nil {
-		if v.logger != nil {
-			v.logger.Errorf("Vault path %s contained no secret", mapped)
-		}
-		return ""
+		return "", errors.Errorf("Vault path %s contained no secret", mapped)
 	}
 	raw, ok := sec.Data[field]
 	if !ok {
-		if v.logger != nil {
-			v.logger.Errorf("%s has no field named '%s'", mapped, field)
-		}
-		return ""
+		return "", errors.Errorf("%s has no field named '%s'", mapped, field)
 	}
-	return fmt.Sprintf("%s", raw)
+	return fmt.Sprintf("%s", raw), nil
 }

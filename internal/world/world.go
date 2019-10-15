@@ -80,7 +80,7 @@ func (w *World) Render(out io.Writer, in io.Reader) error {
 
 func (w *World) Funcs() template.FuncMap {
 	funcs := template.FuncMap(sprig.FuncMap())
-	funcs["vault"] = func(path, field string) string {
+	funcs["vault"] = func(path, field string) (string, error) {
 		return w.Vault().Secret(path, field)
 	}
 
