@@ -161,7 +161,7 @@ an Azure keyvault is in this format:
 }
 ```
 
-The returned value would in this case be `123456`.
+The returned value would in this case be `"123456"`.
 
 ### Path overrides
 
