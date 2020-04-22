@@ -133,14 +133,7 @@ then you can also access secrets from that Azure keyvault using the following sy
 {{ azure "secrets--path" }}
 ```
 
-The path in keyvault can only contain alphanumeric characters and dashes, for 
-compatibility TPL also accepts paths with slashes (`/`) which it internally
-transforms into double dashes (`--`). So the syntax below is equivalent to the
-one above for azure:
-
-```
-{{ azure "secrets/path" }}
-```
+The path in keyvault can only contain alphanumeric characters and dashes.
 
 ### Secrets as JSON
 

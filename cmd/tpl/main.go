@@ -18,9 +18,9 @@ var version, commit, date string
 func main() {
 	log := logrus.New()
 	var input string
-	var keyPrefix string
+	var vaultPrefix string
 	var showVersion bool
-	var keyMapping string
+	var vaultMapping string
 	var verbose bool
 	var showLicenseInfo bool
 	var leftDelim string
@@ -33,8 +33,8 @@ func main() {
 		pflag.PrintDefaults()
 	}
 
-	pflag.StringVar(&keyPrefix, "vault-prefix", "", "Prefix for all Vault paths")
-	pflag.StringVar(&keyMapping, "vault-mapping", "", "Key mapping file for Vault keys")
+	pflag.StringVar(&vaultPrefix, "vault-prefix", "", "Prefix for all Vault paths")
+	pflag.StringVar(&vaultMapping, "vault-mapping", "", "Key mapping file for Vault keys")
 	pflag.BoolVar(&verbose, "verbose", false, "Verbose log output")
 	pflag.BoolVar(&showVersion, "version", false, "Show version information")
 	pflag.BoolVar(&showLicenseInfo, "licenses", false, "Show licenses of used libraries")
@@ -89,12 +89,12 @@ func main() {
 		LeftDelim:  leftDelim,
 		RightDelim: rightDelim,
 	})
-	if keyPrefix != "" {
-		w.Vault().Prefix = keyPrefix
-		w.Azure().Prefix = keyPrefix
+	if vaultPrefix != "" {
+		w.Vault().Prefix = vaultPrefix
+		w.Azure().Prefix = vaultPrefix
 	}
-	if keyMapping != "" {
-		mapping, err := loadKeyMapping(keyMapping)
+	if vaultMapping != "" {
+		mapping, err := loadKeyMapping(vaultMapping)
 		if err != nil {
 			log.WithError(err).Fatalf("Failed to load mapping file")
 		}

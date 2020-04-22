@@ -13,11 +13,14 @@ import (
 )
 
 const (
-	AzureSubscriptionId string = "AZURE_SUBSCRIPTION_ID"
-	AzureClientId       string = "AZURE_CLIENT_ID"
-	AzureClientSecret   string = "AZURE_CLIENT_SECRET"
-	AzureKeyVaultUrl    string = "AZURE_KEY_VAULT_URL"
-	AzureApiVersion     string = "AZURE_API_VERSION"
+	AzureSubscriptionId    string = "AZURE_SUBSCRIPTION_ID"
+	AzureClientId          string = "AZURE_CLIENT_ID"
+	AzureClientSecret      string = "AZURE_CLIENT_SECRET"
+	AzureKeyVaultUrl       string = "AZURE_KEY_VAULT_URL"
+	AzureApiVersion        string = "AZURE_API_VERSION"
+	VaultUrl               string = "https://vault.azure.net"
+	MicrosoftLoginUrl      string = "https://login.microsoftonline.com/"
+	ClientCredentialsGrant string = "client_credentials"
 )
 
 type Oauth2Res struct {
@@ -92,9 +95,6 @@ func (a *Azure) Secret(path string) (string, error) {
 	if !ok {
 		mapped = path
 	}
-	// azure keyvault only allows alphanumeric chars and dashes, for easier use and backwards compatibility we
-	// replace "/" with "--" and use the double dashes as a separator
-	mapped = strings.Replace(mapped, "/", "--", -1)
 	err := a.getBearerToken()
 	if err != nil {
 		return "", errors.Wrap(err, "could not get access token from https://login.microsoftonline.com/")
@@ -147,7 +147,9 @@ func (a *Azure) getLatestSecretVersion(path string) (string, error) {
 
 func (a *Azure) doVaultRequest(urlPath string) ([]byte, error) {
 	if a.token == "" {
-		return nil, errors.New("bearer token missing")
+		if err := a.getBearerToken(); err != nil {
+			return nil, err
+		}
 	}
 	params := url.Values{}
 	params.Set("api-version", a.apiVersion)
@@ -176,11 +178,11 @@ func (a *Azure) doVaultRequest(urlPath string) ([]byte, error) {
 
 func (a *Azure) getBearerToken() error {
 	params := url.Values{}
-	params.Set("grant_type", "client_credentials")
+	params.Set("grant_type", ClientCredentialsGrant)
 	params.Set("client_id", a.clientId)
 	params.Set("client_secret", a.clientSecret)
-	params.Set("resource", "https://vault.azure.net")
-	u, err := url.ParseRequestURI("https://login.microsoftonline.com/")
+	params.Set("resource", VaultUrl)
+	u, err := url.ParseRequestURI(MicrosoftLoginUrl)
 	if err != nil {
 		return err
 	}
