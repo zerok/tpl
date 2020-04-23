@@ -31,7 +31,7 @@ func TestJsonToMap(t *testing.T) {
 	w := New(&Options{})
 	data, err := w.jsonToMap(`{ "test": { "key": "value", "key2": "value2" } }`)
 	if err != nil {
-		t.Fatalf("jsonTpMap shouldn't have resulted in an error. Got %s instead", err.Error())
+		t.Fatalf("jsonToMap shouldn't have resulted in an error. Got %s instead", err.Error())
 	}
 	value, err := jmespath.Search("test.key", data)
 	if err != nil {

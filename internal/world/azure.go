@@ -13,25 +13,25 @@ import (
 )
 
 const (
-	AzureSubscriptionId    string = "AZURE_SUBSCRIPTION_ID"
-	AzureClientId          string = "AZURE_CLIENT_ID"
-	AzureClientSecret      string = "AZURE_CLIENT_SECRET"
-	AzureKeyVaultUrl       string = "AZURE_KEY_VAULT_URL"
-	AzureApiVersion        string = "AZURE_API_VERSION"
-	VaultUrl               string = "https://vault.azure.net"
-	MicrosoftLoginUrl      string = "https://login.microsoftonline.com/"
-	ClientCredentialsGrant string = "client_credentials"
+	AzureSubscriptionId         string = "AZURE_SUBSCRIPTION_ID"
+	AzureClientId               string = "AZURE_CLIENT_ID"
+	AzureClientSecret           string = "AZURE_CLIENT_SECRET"
+	AzureKeyVaultUrl            string = "AZURE_KEY_VAULT_URL"
+	AzureApiVersion             string = "AZURE_API_VERSION"
+	AzureVaultUrl               string = "https://vault.azure.net"
+	AzureClientCredentialsGrant string = "client_credentials"
+	MicrosoftLoginUrl           string = "https://login.microsoftonline.com/"
 )
 
-type Oauth2Res struct {
+type AzureOauth2Res struct {
 	AccessToken string `json:"access_token"`
 }
 
-type KeyVaultEntry struct {
+type AzureKeyVaultEntry struct {
 	Value string `json:"value"`
 }
 
-type SecretVersions struct {
+type AzureSecretVersions struct {
 	Value []struct {
 		ID         string `json:"id"`
 		Attributes struct {
@@ -115,7 +115,7 @@ func (a *Azure) getSecret(path string, secretVersion string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var entry KeyVaultEntry
+	var entry AzureKeyVaultEntry
 	err = json.Unmarshal(body, &entry)
 	if err != nil {
 		return "", err
@@ -129,7 +129,7 @@ func (a *Azure) getLatestSecretVersion(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var secretVersions SecretVersions
+	var secretVersions AzureSecretVersions
 	err = json.Unmarshal(body, &secretVersions)
 	if err != nil {
 		return "", err
@@ -178,10 +178,10 @@ func (a *Azure) doVaultRequest(urlPath string) ([]byte, error) {
 
 func (a *Azure) getBearerToken() error {
 	params := url.Values{}
-	params.Set("grant_type", ClientCredentialsGrant)
+	params.Set("grant_type", AzureClientCredentialsGrant)
 	params.Set("client_id", a.clientId)
 	params.Set("client_secret", a.clientSecret)
-	params.Set("resource", VaultUrl)
+	params.Set("resource", AzureVaultUrl)
 	u, err := url.ParseRequestURI(MicrosoftLoginUrl)
 	if err != nil {
 		return err
@@ -196,7 +196,7 @@ func (a *Azure) getBearerToken() error {
 	if err != nil {
 		return err
 	}
-	var bearerTokenResponse Oauth2Res
+	var bearerTokenResponse AzureOauth2Res
 	body, _ := ioutil.ReadAll(resp.Body)
 	err = json.Unmarshal(body, &bearerTokenResponse)
 	if err != nil {

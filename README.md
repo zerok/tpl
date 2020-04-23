@@ -159,8 +159,8 @@ The returned value would in this case be `"123456"`.
 ### Path overrides
 
 To allow for generic templates to be overridden with local path overrides, 
-you can specify a custom path prefix for all secrets with the
-`--vault-prefix PREFIX` flag.
+you can specify a custom path prefix flag for all secrets with the
+`--vault-prefix PREFIX` for vault and `--azure-prefix PREFIX` for azure.
 
 For more fine-grained mappings, you can also create a mappings file which
 maps a path as it is written inside your template to a path as it should be
@@ -180,8 +180,11 @@ $ tpl vault.tpl --vault-mapping vault-mapping.csv
 test-value
 ```
 
-**Note:** If you also specify a `--vault-prefix`, this will be applied *before*
-the path is mapped.
+If you are using Azure keyvault the `--azure-mapping` flag does the same
+for azure.
+
+**Note:** If you also specify a `--vault-prefix` or `--azure-prefix`, this
+will be applied *before* the path is mapped.
 
 
 ### Data files

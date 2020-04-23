@@ -89,10 +89,10 @@ func (w *World) Funcs() template.FuncMap {
 	funcs["azure"] = func(path string) (string, error) {
 		return w.Azure().Secret(path)
 	}
-	funcs["jsonToMap"] = func(jsonData string) (interface{}, error) {
+	funcs["jsonToMap"] = func(jsonData string) (map[string]interface{}, error) {
 		return w.jsonToMap(jsonData)
 	}
-	funcs["jmsepathValue"] = func(path string, data interface{}) (interface{}, error) {
+	funcs["jmsepathValue"] = func(path string, data map[string]interface{}) (interface{}, error) {
 		return jmespath.Search(path, data)
 	}
 	return funcs
@@ -130,8 +130,8 @@ func (nw *Network) ExternalIP() string {
 	return ip
 }
 
-func (w *World) jsonToMap(jsonData string) (interface{}, error) {
-	var data interface{}
+func (w *World) jsonToMap(jsonData string) (map[string]interface{}, error) {
+	var data map[string]interface{}
 	err := json.Unmarshal([]byte(jsonData), &data)
 	return data, err
 }
