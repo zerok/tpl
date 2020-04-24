@@ -130,7 +130,7 @@ If you have the environment variables:
 then you can also access secrets from that Azure keyvault using the following syntax:
 
 ```
-{{ azure "secrets--path" }}
+{{ .Azure.Secret "secrets--path" }}
 ```
 
 The path in keyvault can only contain alphanumeric characters and dashes.
@@ -140,7 +140,7 @@ The path in keyvault can only contain alphanumeric characters and dashes.
 If you have secrets saved in JSON format you can read their values this way:
 
 ```
-{{ azure "secrets--path" | jsonToMap | jmsepathValue "database.password" }}
+{{ .Azure.Secret "secrets--path" | jsonToMap | jmsepathValue "database.password" }}
 ```
 
 This would assume that the secret saved in the path `secrets--path` in 

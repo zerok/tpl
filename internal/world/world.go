@@ -86,8 +86,8 @@ func (w *World) Funcs() template.FuncMap {
 	funcs["vault"] = func(path, field string) (string, error) {
 		return w.Vault().Secret(path, field)
 	}
-	funcs["azure"] = func(path string) (string, error) {
-		return w.Azure().Secret(path)
+	funcs["Azure"] = func(path string) (*Azure, error) {
+		return w.Azure(), nil
 	}
 	funcs["jsonToMap"] = func(jsonData string) (map[string]interface{}, error) {
 		return w.jsonToMap(jsonData)
