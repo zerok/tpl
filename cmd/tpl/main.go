@@ -27,6 +27,8 @@ func main() {
 	var rightDelim string
 	var insecure bool
 	var data []string
+	var azurePrefix string
+	var azureMapping string
 
 	pflag.Usage = func() {
 		fmt.Print("Usage: tpl [options] template-file\n\n")
@@ -42,6 +44,8 @@ func main() {
 	pflag.StringVar(&rightDelim, "right-delimiter", "}}", "Right delimiter used within the Go template system")
 	pflag.BoolVar(&insecure, "insecure", false, "Enables features like shell output")
 	pflag.StringSliceVar(&data, "data", []string{}, "Data definitions (e.g. --data=name=file.yaml)")
+	pflag.StringVar(&azurePrefix, "azure-prefix", "", "Prefix for all Azure keyvault paths")
+	pflag.StringVar(&azureMapping, "azure-mapping", "", "Key mapping file for Azure keyvault keys")
 	pflag.Parse()
 
 	if verbose {
@@ -91,13 +95,19 @@ func main() {
 	})
 	if vaultPrefix != "" {
 		w.Vault().Prefix = vaultPrefix
+		w.Azure().Prefix = azurePrefix
 	}
 	if vaultMapping != "" {
-		mapping, err := loadKeyMapping(vaultMapping)
+		vaultMap, err := loadKeyMapping(vaultMapping)
 		if err != nil {
-			log.WithError(err).Fatalf("Failed to load mapping file")
+			log.WithError(err).Fatalf("Failed to load vault mapping file")
 		}
-		w.Vault().KeyMapping = mapping
+		azureMap, err := loadKeyMapping(azureMapping)
+		if err != nil {
+			log.WithError(err).Fatalf("Failed to load azure mapping file")
+		}
+		w.Vault().KeyMapping = vaultMap
+		w.Azure().KeyMapping = azureMap
 	}
 	wd, err := os.Getwd()
 	if err != nil {

@@ -106,18 +106,61 @@ file exists before building volume mounts for it:
 {{ .FS.Exists "path/to/file" }}
 ```
 
-### Vault secrets
+### HashiCorp Vault secrets
 
-If you have the environment variables `VAULT_ADDR` and `VAULT_TOKEN` set then
-you can also access secrets from that Vault using the following syntax:
+If you have the environment variables:
+ * `VAULT_ADDR`
+ * `VAULT_TOKEN`
+ 
+then you can access secrets from that Vault using the following syntax:
 
 ```
 {{ vault "secrets/path" "fieldname" }}
 ```
 
-To allow for generic templates to be overriden with local path overrides, 
-you can specify a custom path prefix prefix for all secrets with the
-`--vault-prefix PREFIX` flag.
+### Azure keyvault secrets
+
+If you have the environment variables:
+* `AZURE_SUBSCRIPTION_ID`
+* `AZURE_CLIENT_ID`
+* `AZURE_CLIENT_SECRET`
+* `AZURE_KEY_VAULT_URL`
+* `AZURE_API_VERSION`
+
+then you can also access secrets from that Azure keyvault using the following syntax:
+
+```
+{{ .Azure.Secret "secrets--path" }}
+```
+
+The path in keyvault can only contain alphanumeric characters and dashes.
+
+### Secrets as JSON
+
+If you have secrets saved in JSON format you can read their values this way:
+
+```
+{{ .Azure.Secret "secrets--path" | jsonToMap | jmsepathValue "database.password" }}
+```
+
+This would assume that the secret saved in the path `secrets--path` in 
+an Azure keyvault is in this format:
+
+```
+{
+    "database": {
+        "password": "123456"
+    }
+}
+```
+
+The returned value would in this case be `"123456"`.
+
+### Path overrides
+
+To allow for generic templates to be overridden with local path overrides, 
+you can specify a custom path prefix flag for all secrets with the
+`--vault-prefix PREFIX` for vault and `--azure-prefix PREFIX` for azure.
 
 For more fine-grained mappings, you can also create a mappings file which
 maps a path as it is written inside your template to a path as it should be
@@ -137,8 +180,11 @@ $ tpl vault.tpl --vault-mapping vault-mapping.csv
 test-value
 ```
 
-**Note:** If you also specify a `--vault-prefix`, this will be applied *before*
-the path is mapped.
+If you are using Azure keyvault the `--azure-mapping` flag does the same
+for azure.
+
+**Note:** If you also specify a `--vault-prefix` or `--azure-prefix`, this
+will be applied *before* the path is mapped.
 
 
 ### Data files
@@ -205,6 +251,7 @@ used:
 * https://github.com/pkg/errors
 * https://github.com/sethgrid/pester
 * https://github.com/spf13/pflag
+* https://github.com/jmespath/go-jmespath
 * https://golang.org/x/crypto
 * https://golang.org/x/net
 * https://golang.org/x/sys
