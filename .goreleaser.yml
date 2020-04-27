@@ -14,13 +14,13 @@ builds:
   main: ./cmd/tpl
   ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
   binary: tpl
-archive:
-  format: tar.gz
-  name_template: '{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{
-    .Arm }}{{ end }}'
-  files:
-  - README.md
-  - LICENSE
+archives:
+  - format: tar.gz
+    name_template: '{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{
+      .Arm }}{{ end }}'
+    files:
+    - README.md
+    - LICENSE
 snapshot:
   name_template: SNAPSHOT-{{ .Commit }}
 checksum:
