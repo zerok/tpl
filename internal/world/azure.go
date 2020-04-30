@@ -13,11 +13,12 @@ import (
 )
 
 const (
-	AzureSubscriptionId         string = "AZURE_SUBSCRIPTION_ID"
+	AzureTenantId               string = "AZURE_TENANT_ID"
 	AzureClientId               string = "AZURE_CLIENT_ID"
 	AzureClientSecret           string = "AZURE_CLIENT_SECRET"
 	AzureKeyVaultUrl            string = "AZURE_KEY_VAULT_URL"
 	AzureApiVersion             string = "AZURE_API_VERSION"
+	AzureToken                  string = "AZURE_TOKEN"
 	AzureVaultUrl               string = "https://vault.azure.net"
 	AzureClientCredentialsGrant string = "client_credentials"
 	MicrosoftLoginUrl           string = "https://login.microsoftonline.com/"
@@ -44,49 +45,51 @@ type AzureSecretVersions struct {
 }
 
 type Azure struct {
-	logger         *logrus.Logger
-	Prefix         string
-	KeyMapping     map[string]string
-	keyVaultUrl    string
-	subscriptionId string
-	clientId       string
-	clientSecret   string
-	apiVersion     string
-	token          string
+	logger       *logrus.Logger
+	Prefix       string
+	KeyMapping   map[string]string
+	keyVaultUrl  string
+	tenantId     string
+	clientId     string
+	clientSecret string
+	apiVersion   string
+	token        string
 }
 
 func (w *World) Azure() *Azure {
 	if w.azure != nil {
 		return w.azure
 	}
-	azureSubscriptionId := w.checkAzureEnv(AzureSubscriptionId)
-	azureClientId       := w.checkAzureEnv(AzureClientId)
-	azureClientSecret   := w.checkAzureEnv(AzureClientSecret)
-	azureKeyVaultUrl    := w.checkAzureEnv(AzureKeyVaultUrl)
-	azureApiVersion     := w.checkAzureEnv(AzureApiVersion)
+	tenantId          := os.Getenv(AzureTenantId)
+	azureClientId     := os.Getenv(AzureClientId)
+	azureClientSecret := os.Getenv(AzureClientSecret)
+	azureKeyVaultUrl  := os.Getenv(AzureKeyVaultUrl)
+	azureApiVersion   := os.Getenv(AzureApiVersion)
+	azureToken        := os.Getenv(AzureToken)
 
 	if azureApiVersion == "" {
 		azureApiVersion = "7.0"
 	}
 
+	if azureKeyVaultUrl == "" {
+		w.logger.Warnf("%v not set.", AzureKeyVaultUrl)
+	}
+
+	if azureToken == "" && (tenantId == "" || azureClientId == "" || azureClientSecret == "") {
+		w.logger.Warnf("%s or %s, %s, %s needs to be set", AzureToken, AzureTenantId, AzureClientId, AzureClientSecret)
+	}
+
 	w.azure = &Azure{
-		logger:         w.logger,
-		KeyMapping:     make(map[string]string),
-		subscriptionId: azureSubscriptionId,
-		clientId:       azureClientId,
-		clientSecret:   azureClientSecret,
-		keyVaultUrl:    azureKeyVaultUrl,
-		apiVersion:     azureApiVersion,
+		logger:       w.logger,
+		KeyMapping:   make(map[string]string),
+		tenantId:     tenantId,
+		clientId:     azureClientId,
+		clientSecret: azureClientSecret,
+		keyVaultUrl:  azureKeyVaultUrl,
+		apiVersion:   azureApiVersion,
+		token:        azureToken,
 	}
 	return w.azure
-}
-
-func (w *World) checkAzureEnv(env string) string {
-	value := os.Getenv(env)
-	if w.logger != nil && value == "" {
-		w.logger.Warnf("%v not set.", env)
-	}
-	return value
 }
 
 func (a *Azure) Secret(path string) (string, error) {
@@ -94,10 +97,6 @@ func (a *Azure) Secret(path string) (string, error) {
 	mapped, ok := a.KeyMapping[prefixPath]
 	if !ok {
 		mapped = path
-	}
-	err := a.getBearerToken()
-	if err != nil {
-		return "", errors.Wrap(err, "could not get access token from https://login.microsoftonline.com/")
 	}
 	latestSecretVersion, err := a.getLatestSecretVersion(mapped)
 	if err != nil {
@@ -124,8 +123,7 @@ func (a *Azure) getSecret(path string, secretVersion string) (string, error) {
 }
 
 func (a *Azure) getLatestSecretVersion(path string) (string, error) {
-	secretPath := path
-	body, err := a.doVaultRequest(fmt.Sprintf("/secrets/%s/versions", secretPath))
+	body, err := a.doVaultRequest(fmt.Sprintf("/secrets/%s/versions", path))
 	if err != nil {
 		return "", err
 	}
@@ -186,7 +184,7 @@ func (a *Azure) getBearerToken() error {
 	if err != nil {
 		return err
 	}
-	u.Path = fmt.Sprintf("/%s/oauth2/token", a.subscriptionId)
+	u.Path = fmt.Sprintf("/%s/oauth2/token", a.tenantId)
 	client := &http.Client{}
 	r, err := http.NewRequest("POST", u.String(), strings.NewReader(params.Encode()))
 	if err != nil {

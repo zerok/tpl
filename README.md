@@ -121,7 +121,7 @@ then you can access secrets from that Vault using the following syntax:
 ### Azure keyvault secrets
 
 If you have the environment variables:
-* `AZURE_SUBSCRIPTION_ID`
+* `AZURE_TENANT_ID`
 * `AZURE_CLIENT_ID`
 * `AZURE_CLIENT_SECRET`
 * `AZURE_KEY_VAULT_URL`
@@ -132,6 +132,12 @@ then you can also access secrets from that Azure keyvault using the following sy
 ```
 {{ .Azure.Secret "secrets--path" }}
 ```
+
+Alternatively you can set:
+* `AZURE_TOKEN`
+
+to your personal token via `az account get-access-token --resource https://vault.azure.net`,
+then you only additionally need `AZURE_KEY_VAULT_URL` to access your secrets.
 
 The path in keyvault can only contain alphanumeric characters and dashes.
 
