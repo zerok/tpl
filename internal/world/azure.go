@@ -3,13 +3,14 @@ package world
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Sirupsen/logrus"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -60,12 +61,12 @@ func (w *World) Azure() *Azure {
 	if w.azure != nil {
 		return w.azure
 	}
-	tenantId          := os.Getenv(AzureTenantId)
-	azureClientId     := os.Getenv(AzureClientId)
+	tenantId := os.Getenv(AzureTenantId)
+	azureClientId := os.Getenv(AzureClientId)
 	azureClientSecret := os.Getenv(AzureClientSecret)
-	azureKeyVaultUrl  := os.Getenv(AzureKeyVaultUrl)
-	azureApiVersion   := os.Getenv(AzureApiVersion)
-	azureToken        := os.Getenv(AzureToken)
+	azureKeyVaultUrl := os.Getenv(AzureKeyVaultUrl)
+	azureApiVersion := os.Getenv(AzureApiVersion)
+	azureToken := os.Getenv(AzureToken)
 
 	if azureApiVersion == "" {
 		azureApiVersion = "7.0"
@@ -140,35 +141,35 @@ func (a *Azure) getLatestSecretVersion(path string) (string, error) {
 	}
 	// version value is returned as an URL so we split it and return the last part which contains the version string
 	split := strings.Split(latestVersion.ID, "/")
-	return split[len(split) - 1], nil
+	return split[len(split)-1], nil
 }
 
 func (a *Azure) doVaultRequest(urlPath string) ([]byte, error) {
 	if a.token == "" {
 		if err := a.getBearerToken(); err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to retrieve token")
 		}
 	}
 	params := url.Values{}
 	params.Set("api-version", a.apiVersion)
 	u, err := url.ParseRequestURI(a.keyVaultUrl)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to parse vault request URI")
 	}
 	u.Path = urlPath
 	u.RawQuery = params.Encode()
 	client := &http.Client{}
 	r, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to generate request")
 	}
 	r.Header.Add("Authorization", fmt.Sprintf("Bearer %s", a.token))
 	resp, err := client.Do(r)
+	if err != nil {
+		return nil, errors.Wrap(err, "request failed")
+	}
 	if resp.StatusCode != 200 {
 		return nil, errors.New(fmt.Sprintf("request returned error, code: %v", resp.StatusCode))
-	}
-	if err != nil {
-		return nil, err
 	}
 	body, _ := ioutil.ReadAll(resp.Body)
 	return body, nil
@@ -182,23 +183,23 @@ func (a *Azure) getBearerToken() error {
 	params.Set("resource", AzureVaultUrl)
 	u, err := url.ParseRequestURI(MicrosoftLoginUrl)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to parse login URL")
 	}
 	u.Path = fmt.Sprintf("/%s/oauth2/token", a.tenantId)
 	client := &http.Client{}
 	r, err := http.NewRequest("POST", u.String(), strings.NewReader(params.Encode()))
 	if err != nil {
-		return err
+		return errors.Wrap(err, "request generation failed for token")
 	}
 	resp, err := client.Do(r)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "token request failed")
 	}
 	var bearerTokenResponse AzureOauth2Res
 	body, _ := ioutil.ReadAll(resp.Body)
 	err = json.Unmarshal(body, &bearerTokenResponse)
 	if err != nil {
-		return nil
+		return errors.Wrap(err, "could not unmarshal token response")
 	}
 	a.token = bearerTokenResponse.AccessToken
 	return nil

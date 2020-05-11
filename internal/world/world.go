@@ -3,13 +3,14 @@ package world
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jmespath/go-jmespath"
 	"io"
 	"io/ioutil"
 	"net"
 	"os"
 	"strings"
 	"text/template"
+
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/Masterminds/sprig"
 	"github.com/Sirupsen/logrus"
@@ -35,6 +36,9 @@ func New(opts *Options) *World {
 		leftDelim:  opts.LeftDelim,
 		rightDelim: opts.RightDelim,
 		insecure:   opts.Insecure,
+	}
+	if w.logger == nil {
+		w.logger = logrus.New()
 	}
 	return w
 }
