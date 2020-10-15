@@ -21,10 +21,30 @@ func TestFSExists(t *testing.T) {
 	})
 }
 
+func TestReadFile(t *testing.T) {
+	w := New(&Options{})
+
+	t.Run("existing-file", func(t *testing.T) {
+		out := requireRender(t, w, `{{ .FS.ReadFile "world.go" }}`)
+		require.Contains(t, out, "type World")
+	})
+
+	t.Run("not-existing-file", func(t *testing.T) {
+		requireError(t, w, `{{ .FS.ReadFile "i-dont-exist.go" }}`)
+	})
+}
+
 func requireRender(t *testing.T, w *World, tpl string) string {
 	var out bytes.Buffer
 	in := bytes.NewBufferString(tpl)
 	err := w.Render(&out, in)
 	require.NoError(t, err)
 	return out.String()
+}
+
+func requireError(t *testing.T, w *World, tpl string) {
+	var out bytes.Buffer
+	in := bytes.NewBufferString(tpl)
+	err := w.Render(&out, in)
+	require.Error(t, err)
 }

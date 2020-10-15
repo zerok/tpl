@@ -106,6 +106,14 @@ file exists before building volume mounts for it:
 {{ .FS.Exists "path/to/file" }}
 ```
 
+#### File content as string
+
+Sometimes it can be useful to include the content of another file as is:
+
+```
+{{ .FS.ReadFile "path/to/file" }}
+```
+
 ### HashiCorp Vault secrets
 
 If you have the environment variables:
