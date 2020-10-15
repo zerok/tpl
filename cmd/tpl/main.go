@@ -2,6 +2,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -29,12 +30,14 @@ func main() {
 	var data []string
 	var azurePrefix string
 	var azureMapping string
+	var outputFile string
 
 	pflag.Usage = func() {
 		fmt.Print("Usage: tpl [options] template-file\n\n")
 		pflag.PrintDefaults()
 	}
 
+	pflag.StringVar(&outputFile, "output", "", "Output file")
 	pflag.StringVar(&vaultPrefix, "vault-prefix", "", "Prefix for all Vault paths")
 	pflag.StringVar(&vaultMapping, "vault-mapping", "", "Key mapping file for Vault keys")
 	pflag.BoolVar(&verbose, "verbose", false, "Verbose log output")
@@ -118,8 +121,22 @@ func main() {
 		log.WithError(err).Fatalf("Failed to load data")
 	}
 	w.Data = d
-	if err := w.Render(os.Stdout, rd); err != nil {
+
+	output := bytes.Buffer{}
+	if err := w.Render(&output, rd); err != nil {
 		log.WithError(err).Fatal("Failed to render")
+	}
+	if outputFile == "" {
+		io.Copy(os.Stdout, &output)
+	} else {
+		fp, err := os.OpenFile(outputFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+		if err != nil {
+			log.WithError(err).Fatal("Failed to open output file")
+		}
+		defer fp.Close()
+		if _, err := io.Copy(fp, &output); err != nil {
+			log.WithError(err).Fatal("Failed to write to output file")
+		}
 	}
 }
 
