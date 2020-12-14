@@ -58,6 +58,38 @@ type Azure struct {
 	token        string
 }
 
+// LeveledLogrus implements the retryablehttp LeveledLogger interface
+// to use logrus as logging backend. See:
+// https://github.com/hashicorp/go-retryablehttp/pull/101#issuecomment-735206810
+type LeveledLogrus struct {
+	*logrus.Logger
+}
+
+func (l *LeveledLogrus) fields(keysAndValues ...interface{}) map[string]interface{} {
+	fields := make(map[string]interface{})
+
+	for i := 0; i < len(keysAndValues)-1; i += 2 {
+		fields[keysAndValues[i].(string)] = keysAndValues[i+1]
+	}
+
+	return fields
+}
+
+func (l *LeveledLogrus) Error(msg string, keysAndValues ...interface{}) {
+	l.WithFields(l.fields(keysAndValues...)).Error(msg)
+}
+
+func (l *LeveledLogrus) Info(msg string, keysAndValues ...interface{}) {
+	l.WithFields(l.fields(keysAndValues...)).Info(msg)
+}
+func (l *LeveledLogrus) Debug(msg string, keysAndValues ...interface{}) {
+	l.WithFields(l.fields(keysAndValues...)).Debug(msg)
+}
+
+func (l *LeveledLogrus) Warn(msg string, keysAndValues ...interface{}) {
+	l.WithFields(l.fields(keysAndValues...)).Warn(msg)
+}
+
 func (w *World) Azure() *Azure {
 	if w.azure != nil {
 		return w.azure
@@ -167,6 +199,7 @@ func (a *Azure) doVaultRequest(urlPath string) ([]byte, error) {
 	r.Header.Add("Authorization", fmt.Sprintf("Bearer %s", a.token))
 
 	retryClient := retryablehttp.NewClient()
+	retryClient.Logger = &LeveledLogrus{a.logger}
 	client := retryClient.StandardClient()
 
 	resp, err := client.Do(r)
@@ -198,6 +231,7 @@ func (a *Azure) getBearerToken() error {
 	}
 
 	retryClient := retryablehttp.NewClient()
+	retryClient.Logger = &LeveledLogrus{a.logger}
 	client := retryClient.StandardClient()
 
 	resp, err := client.Do(r)
