@@ -8,6 +8,7 @@ require (
 	github.com/Sirupsen/logrus v1.0.3
 	github.com/aokoli/goutils v1.0.1 // indirect
 	github.com/google/uuid v1.0.0 // indirect
+	github.com/hashicorp/go-retryablehttp v0.6.8
 	github.com/hashicorp/vault/api v1.0.4
 	github.com/huandu/xstrings v1.2.0 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect

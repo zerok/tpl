@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/pkg/errors"
 )
 
@@ -165,7 +166,9 @@ func (a *Azure) doVaultRequest(urlPath string) ([]byte, error) {
 	}
 	r.Header.Add("Authorization", fmt.Sprintf("Bearer %s", a.token))
 
-	client := &http.Client{}
+	retryClient := retryablehttp.NewClient()
+	client := retryClient.StandardClient()
+
 	resp, err := client.Do(r)
 	if err != nil {
 		return nil, errors.Wrap(err, "request failed")
@@ -194,7 +197,9 @@ func (a *Azure) getBearerToken() error {
 		return errors.Wrap(err, "request generation failed for token")
 	}
 
-	client := &http.Client{}
+	retryClient := retryablehttp.NewClient()
+	client := retryClient.StandardClient()
+
 	resp, err := client.Do(r)
 	if err != nil {
 		return errors.Wrap(err, "token request failed")
