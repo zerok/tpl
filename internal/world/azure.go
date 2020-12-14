@@ -158,12 +158,14 @@ func (a *Azure) doVaultRequest(urlPath string) ([]byte, error) {
 	}
 	u.Path = urlPath
 	u.RawQuery = params.Encode()
-	client := &http.Client{}
+
 	r, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to generate request")
 	}
 	r.Header.Add("Authorization", fmt.Sprintf("Bearer %s", a.token))
+
+	client := &http.Client{}
 	resp, err := client.Do(r)
 	if err != nil {
 		return nil, errors.Wrap(err, "request failed")
@@ -186,11 +188,13 @@ func (a *Azure) getBearerToken() error {
 		return errors.Wrap(err, "failed to parse login URL")
 	}
 	u.Path = fmt.Sprintf("/%s/oauth2/token", a.tenantId)
-	client := &http.Client{}
+
 	r, err := http.NewRequest("POST", u.String(), strings.NewReader(params.Encode()))
 	if err != nil {
 		return errors.Wrap(err, "request generation failed for token")
 	}
+
+	client := &http.Client{}
 	resp, err := client.Do(r)
 	if err != nil {
 		return errors.Wrap(err, "token request failed")
