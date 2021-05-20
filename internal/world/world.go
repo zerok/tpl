@@ -12,9 +12,9 @@ import (
 
 	"github.com/jmespath/go-jmespath"
 
-	"github.com/Masterminds/sprig"
-	"github.com/Sirupsen/logrus"
+	"github.com/Masterminds/sprig/v3"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 var ErrInsecureRequired = errors.New("This feature requires the --insecure flag")

@@ -9,9 +9,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 const (

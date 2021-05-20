@@ -250,7 +250,7 @@ This tool wouldn't be possible (or at least would have been a lot harder to
 write) without the great work of the Go community. The following libraries are
 used:
 
-* https://github.com/Sirupsen/logrus
+* https://github.com/sirupsen/logrus
 * https://github.com/fatih/structs
 * https://github.com/golang/snappy
 * https://github.com/hashicorp/errwrap
@@ -259,7 +259,7 @@ used:
 * https://github.com/hashicorp/go-rootcerts
 * https://github.com/hashicorp/hcl
 * https://github.com/hashicorp/vault
-* https://github.com/Masterminds/sprig
+* https://github.com/Masterminds/sprig/v3
 * https://github.com/mitchellh/go-homedir
 * https://github.com/mitchellh/mapstructure
 * https://github.com/pkg/errors
