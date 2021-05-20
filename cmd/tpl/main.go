@@ -8,8 +8,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"github.com/zerok/tpl/internal/world"
 )
