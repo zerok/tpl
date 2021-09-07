@@ -2,13 +2,14 @@ package world
 
 import (
 	"bytes"
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestFSExists(t *testing.T) {
-	w := New(&Options{})
+	w := New(context.Background(), &Options{})
 
 	t.Run("existing-file", func(t *testing.T) {
 		out := requireRender(t, w, `{{ if .FS.Exists "world.go" }}exists{{ else }}not found{{ end }}`)
@@ -22,7 +23,7 @@ func TestFSExists(t *testing.T) {
 }
 
 func TestReadFile(t *testing.T) {
-	w := New(&Options{})
+	w := New(context.Background(), &Options{})
 
 	t.Run("existing-file", func(t *testing.T) {
 		out := requireRender(t, w, `{{ .FS.ReadFile "world.go" }}`)

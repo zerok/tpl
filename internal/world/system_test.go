@@ -2,6 +2,7 @@ package world_test
 
 import (
 	"bytes"
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -12,7 +13,7 @@ import (
 // TestSystemShellOutput checks that ShellOutput moves the rendering into an
 // error state if the executed command fails.
 func TestSystemShellOutput(t *testing.T) {
-	w := world.New(&world.Options{
+	w := world.New(context.Background(), &world.Options{
 		Insecure: true,
 	})
 	tests := []struct {

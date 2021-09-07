@@ -1,6 +1,7 @@
 package world
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"io/ioutil"
@@ -16,7 +17,7 @@ import (
 type Data map[string]interface{}
 
 // LoadData fills a newly created Data object based on the given definitions.
-func LoadData(datadefs []string, cwd string) (Data, error) {
+func LoadData(ctx context.Context, datadefs []string, cwd string) (Data, error) {
 	result := Data{}
 	for _, datadef := range datadefs {
 		elems := strings.SplitN(datadef, "=", 2)

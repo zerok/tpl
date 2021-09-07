@@ -2,6 +2,7 @@ package world_test
 
 import (
 	"bytes"
+	"context"
 	"os"
 	"testing"
 
@@ -10,7 +11,7 @@ import (
 )
 
 func TestVaultSecret(t *testing.T) {
-	w := world.New(nil)
+	w := world.New(context.Background(), nil)
 	os.Setenv("VAULT_ADDR", "http://127.0.0.1:54000")
 	os.Setenv("VAULT_TOKEN", "")
 	var out bytes.Buffer

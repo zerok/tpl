@@ -2,6 +2,7 @@ package world_test
 
 import (
 	"bytes"
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -9,8 +10,8 @@ import (
 )
 
 func TestData(t *testing.T) {
-	w := world.New(nil)
-	data, err := world.LoadData([]string{
+	w := world.New(context.Background(), nil)
+	data, err := world.LoadData(context.Background(), []string{
 		"items=test.yaml",
 	}, "../../testdata")
 	require.NoError(t, err)

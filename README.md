@@ -250,7 +250,7 @@ This tool wouldn't be possible (or at least would have been a lot harder to
 write) without the great work of the Go community. The following libraries are
 used:
 
-* https://github.com/sirupsen/logrus
+* https://github.com/rs/zerolog
 * https://github.com/fatih/structs
 * https://github.com/golang/snappy
 * https://github.com/hashicorp/errwrap

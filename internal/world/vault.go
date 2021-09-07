@@ -1,53 +1,54 @@
 package world
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
 
 	vault "github.com/hashicorp/vault/api"
-	"github.com/sirupsen/logrus"
 )
 
 func (w *World) Vault() *Vault {
 	if w.vault != nil {
 		return w.vault
 	}
+	logger := zerolog.Ctx(w.ctx).With().Str("component", "Vault").Logger()
+	ctx := logger.WithContext(w.ctx)
 	var client *vault.Client
 	var err error
 	var token string
 	vaultConfig := &vault.Config{}
 	if err := vaultConfig.ReadEnvironment(); err != nil {
-		if w.logger != nil {
-			w.logger.Warnf("Failed to read Vault configuration: %s", err.Error())
-		}
+		logger.Warn().Msgf("Failed to read Vault configuration: %s", err.Error())
 	}
 	client, err = vault.NewClient(vaultConfig)
 	if err == nil {
 		token = os.Getenv("VAULT_TOKEN")
-		if w.logger != nil && token == "" {
-			w.logger.Warnf("VAULT_TOKEN not set. Vault not available.")
+		if token == "" {
+			logger.Warn().Msgf("VAULT_TOKEN not set. Vault not available.")
 		} else {
 			client.SetToken(token)
 		}
 	} else {
-		if w.logger != nil && token == "" {
-			w.logger.Warnf("Failed to create Vault client: %s", err.Error())
+		if token == "" {
+			logger.Warn().Msgf("Failed to create Vault client: %s", err.Error())
 		}
 	}
 
 	w.vault = &Vault{
+		ctx:        ctx,
 		client:     client,
 		err:        err,
-		logger:     w.logger,
 		KeyMapping: make(map[string]string),
 	}
 	return w.vault
 }
 
 type Vault struct {
-	logger     *logrus.Logger
+	ctx        context.Context
 	client     *vault.Client
 	err        error
 	Prefix     string
