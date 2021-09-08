@@ -1,6 +1,7 @@
 package world
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -11,7 +12,7 @@ import (
 
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
 )
 
 const (
@@ -47,7 +48,7 @@ type AzureSecretVersions struct {
 }
 
 type Azure struct {
-	logger       *logrus.Logger
+	ctx          context.Context
 	Prefix       string
 	KeyMapping   map[string]string
 	keyVaultUrl  string
@@ -58,14 +59,14 @@ type Azure struct {
 	token        string
 }
 
-// LeveledLogrus implements the retryablehttp LeveledLogger interface
-// to use logrus as logging backend. See:
+// LeveledZerolog implements the retryablehttp LeveledLogger interface
+// to use zerolog as logging backend. See:
 // https://github.com/hashicorp/go-retryablehttp/pull/101#issuecomment-735206810
-type LeveledLogrus struct {
-	*logrus.Logger
+type LeveledZerolog struct {
+	logger *zerolog.Logger
 }
 
-func (l *LeveledLogrus) fields(keysAndValues ...interface{}) map[string]interface{} {
+func (l *LeveledZerolog) fields(keysAndValues ...interface{}) map[string]interface{} {
 	fields := make(map[string]interface{})
 
 	for i := 0; i < len(keysAndValues)-1; i += 2 {
@@ -75,25 +76,27 @@ func (l *LeveledLogrus) fields(keysAndValues ...interface{}) map[string]interfac
 	return fields
 }
 
-func (l *LeveledLogrus) Error(msg string, keysAndValues ...interface{}) {
-	l.WithFields(l.fields(keysAndValues...)).Error(msg)
+func (l *LeveledZerolog) Error(msg string, keysAndValues ...interface{}) {
+	l.logger.Error().Fields(l.fields(keysAndValues...)).Msg(msg)
 }
 
-func (l *LeveledLogrus) Info(msg string, keysAndValues ...interface{}) {
-	l.WithFields(l.fields(keysAndValues...)).Info(msg)
+func (l *LeveledZerolog) Info(msg string, keysAndValues ...interface{}) {
+	l.logger.Info().Fields(l.fields(keysAndValues...)).Msg(msg)
 }
-func (l *LeveledLogrus) Debug(msg string, keysAndValues ...interface{}) {
-	l.WithFields(l.fields(keysAndValues...)).Debug(msg)
+func (l *LeveledZerolog) Debug(msg string, keysAndValues ...interface{}) {
+	l.logger.Debug().Fields(l.fields(keysAndValues...)).Msg(msg)
 }
 
-func (l *LeveledLogrus) Warn(msg string, keysAndValues ...interface{}) {
-	l.WithFields(l.fields(keysAndValues...)).Warn(msg)
+func (l *LeveledZerolog) Warn(msg string, keysAndValues ...interface{}) {
+	l.logger.Warn().Fields(l.fields(keysAndValues...)).Msg(msg)
 }
 
 func (w *World) Azure() *Azure {
 	if w.azure != nil {
 		return w.azure
 	}
+	logger := zerolog.Ctx(w.ctx).With().Str("component", "Azure").Logger()
+	ctx := logger.WithContext(w.ctx)
 	tenantId := os.Getenv(AzureTenantId)
 	azureClientId := os.Getenv(AzureClientId)
 	azureClientSecret := os.Getenv(AzureClientSecret)
@@ -106,15 +109,15 @@ func (w *World) Azure() *Azure {
 	}
 
 	if azureKeyVaultUrl == "" {
-		w.logger.Warnf("%v not set.", AzureKeyVaultUrl)
+		logger.Warn().Msgf("%v not set.", AzureKeyVaultUrl)
 	}
 
 	if azureToken == "" && (tenantId == "" || azureClientId == "" || azureClientSecret == "") {
-		w.logger.Warnf("%s or %s, %s, %s needs to be set", AzureToken, AzureTenantId, AzureClientId, AzureClientSecret)
+		logger.Warn().Msgf("%s or %s, %s, %s needs to be set", AzureToken, AzureTenantId, AzureClientId, AzureClientSecret)
 	}
 
 	w.azure = &Azure{
-		logger:       w.logger,
+		ctx:          ctx,
 		KeyMapping:   make(map[string]string),
 		tenantId:     tenantId,
 		clientId:     azureClientId,
@@ -178,6 +181,7 @@ func (a *Azure) getLatestSecretVersion(path string) (string, error) {
 }
 
 func (a *Azure) doVaultRequest(urlPath string) ([]byte, error) {
+	logger := zerolog.Ctx(a.ctx)
 	if a.token == "" {
 		if err := a.getBearerToken(); err != nil {
 			return nil, errors.Wrap(err, "failed to retrieve token")
@@ -199,7 +203,7 @@ func (a *Azure) doVaultRequest(urlPath string) ([]byte, error) {
 	r.Header.Add("Authorization", fmt.Sprintf("Bearer %s", a.token))
 
 	retryClient := retryablehttp.NewClient()
-	retryClient.Logger = &LeveledLogrus{a.logger}
+	retryClient.Logger = &LeveledZerolog{logger}
 	client := retryClient.StandardClient()
 
 	resp, err := client.Do(r)
@@ -214,6 +218,7 @@ func (a *Azure) doVaultRequest(urlPath string) ([]byte, error) {
 }
 
 func (a *Azure) getBearerToken() error {
+	logger := zerolog.Ctx(a.ctx)
 	params := url.Values{}
 	params.Set("grant_type", AzureClientCredentialsGrant)
 	params.Set("client_id", a.clientId)
@@ -231,7 +236,7 @@ func (a *Azure) getBearerToken() error {
 	}
 
 	retryClient := retryablehttp.NewClient()
-	retryClient.Logger = &LeveledLogrus{a.logger}
+	retryClient.Logger = &LeveledZerolog{logger}
 	client := retryClient.StandardClient()
 
 	resp, err := client.Do(r)

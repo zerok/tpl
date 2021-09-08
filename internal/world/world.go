@@ -1,6 +1,7 @@
 package world
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,31 +15,26 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 )
 
 var ErrInsecureRequired = errors.New("This feature requires the --insecure flag")
 
 type Options struct {
-	Logger     *logrus.Logger
 	Insecure   bool
 	LeftDelim  string
 	RightDelim string
 }
 
 // New generates ... a new world ...
-func New(opts *Options) *World {
+func New(ctx context.Context, opts *Options) *World {
 	if opts == nil {
 		opts = &Options{}
 	}
 	w := &World{
-		logger:     opts.Logger,
+		ctx:        ctx,
 		leftDelim:  opts.LeftDelim,
 		rightDelim: opts.RightDelim,
 		insecure:   opts.Insecure,
-	}
-	if w.logger == nil {
-		w.logger = logrus.New()
 	}
 	return w
 }
@@ -59,7 +55,7 @@ func (w *World) Env() Env {
 // World acts as a container for all the knowledge we want to expose through
 // the template.
 type World struct {
-	logger     *logrus.Logger
+	ctx        context.Context
 	Network    Network
 	env        *Env
 	vault      *Vault

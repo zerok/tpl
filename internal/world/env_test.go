@@ -1,6 +1,7 @@
 package world
 
 import (
+	"context"
 	"os"
 	"testing"
 
@@ -8,7 +9,7 @@ import (
 )
 
 func TestEnv(t *testing.T) {
-	w := New(&Options{})
+	w := New(context.Background(), &Options{})
 
 	t.Run("single-env", func(t *testing.T) {
 		os.Setenv("TEST", "hello world")

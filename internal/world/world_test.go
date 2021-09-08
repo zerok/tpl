@@ -2,16 +2,18 @@ package world
 
 import (
 	"bytes"
-	"github.com/jmespath/go-jmespath"
+	"context"
 	"os"
 	"testing"
+
+	"github.com/jmespath/go-jmespath"
 )
 
 // TestWorldRenderingDelims checks that the delimiters used by the Go template
 // engine can be overriden for the given world in order to make working within
 // things like JSON easier.
 func TestWorldRenderingDelims(t *testing.T) {
-	w := New(&Options{
+	w := New(context.Background(), &Options{
 		LeftDelim:  "<",
 		RightDelim: ">",
 	})
@@ -28,7 +30,7 @@ func TestWorldRenderingDelims(t *testing.T) {
 }
 
 func TestJsonToMap(t *testing.T) {
-	w := New(&Options{})
+	w := New(context.Background(), &Options{})
 	data, err := w.jsonToMap(`{ "test": { "key": "value", "key2": "value2" } }`)
 	if err != nil {
 		t.Fatalf("jsonToMap shouldn't have resulted in an error. Got %s instead", err.Error())

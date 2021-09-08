@@ -2,6 +2,7 @@ package world_test
 
 import (
 	"bytes"
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -10,7 +11,7 @@ import (
 
 func TestAzureSecret(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
-		w := world.New(nil)
+		w := world.New(context.Background(), nil)
 		var out bytes.Buffer
 		in := bytes.NewBufferString(`{{ azure "secret/path" "value" }}`)
 		err := w.Render(&out, in)
@@ -18,7 +19,7 @@ func TestAzureSecret(t *testing.T) {
 		require.Error(t, err)
 	})
 	t.Run("invalid-token", func(t *testing.T) {
-		w := world.New(nil)
+		w := world.New(context.Background(), nil)
 		var out bytes.Buffer
 		in := bytes.NewBufferString(`{{ .Azure.Secret "secrets--path" | jsonToMap | jmsepathValue "nested.json" }}`)
 		err := w.Render(&out, in)

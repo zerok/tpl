@@ -3,13 +3,14 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/csv"
 	"fmt"
 	"io"
 	"os"
 
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
 	"github.com/spf13/pflag"
 	"github.com/zerok/tpl/internal/world"
 )
@@ -17,7 +18,7 @@ import (
 var version, commit, date string
 
 func main() {
-	log := logrus.New()
+	logger := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr}).With().Timestamp().Logger().Level(zerolog.InfoLevel)
 	var input string
 	var vaultPrefix string
 	var showVersion bool
@@ -52,8 +53,9 @@ func main() {
 	pflag.Parse()
 
 	if verbose {
-		log.SetLevel(logrus.DebugLevel)
+		logger = logger.Level(zerolog.DebugLevel)
 	}
+	ctx := logger.WithContext(context.Background())
 
 	if showVersion {
 		fmt.Printf("Version: %s\nCommit: %s\nBuild date: %s\n", version, commit, date)
@@ -73,7 +75,7 @@ func main() {
 
 	input = pflag.Arg(0)
 	if input == "" {
-		log.Error("No input file provided")
+		logger.Error().Msg("No input file provided")
 		pflag.Usage()
 		os.Exit(1)
 	}
@@ -84,14 +86,13 @@ func main() {
 	} else {
 		fp, err := os.Open(input)
 		if err != nil {
-			log.WithError(err).Fatalf("Failed to open template %s", input)
+			logger.Fatal().Err(err).Msgf("Failed to open template %s", input)
 		}
 		defer fp.Close()
 		rd = fp
 	}
 
-	w := world.New(&world.Options{
-		Logger:     log,
+	w := world.New(ctx, &world.Options{
 		Insecure:   insecure,
 		LeftDelim:  leftDelim,
 		RightDelim: rightDelim,
@@ -103,39 +104,39 @@ func main() {
 	if vaultMapping != "" {
 		vaultMap, err := loadKeyMapping(vaultMapping)
 		if err != nil {
-			log.WithError(err).Fatalf("Failed to load vault mapping file")
+			logger.Fatal().Err(err).Msgf("Failed to load vault mapping file")
 		}
 		azureMap, err := loadKeyMapping(azureMapping)
 		if err != nil {
-			log.WithError(err).Fatalf("Failed to load azure mapping file")
+			logger.Fatal().Err(err).Msgf("Failed to load azure mapping file")
 		}
 		w.Vault().KeyMapping = vaultMap
 		w.Azure().KeyMapping = azureMap
 	}
 	wd, err := os.Getwd()
 	if err != nil {
-		log.WithError(err).Fatal("Failed to determine current working directory.")
+		logger.Fatal().Err(err).Msg("Failed to determine current working directory.")
 	}
-	d, err := world.LoadData(data, wd)
+	d, err := world.LoadData(ctx, data, wd)
 	if err != nil {
-		log.WithError(err).Fatalf("Failed to load data")
+		logger.Fatal().Err(err).Msgf("Failed to load data")
 	}
 	w.Data = d
 
 	output := bytes.Buffer{}
 	if err := w.Render(&output, rd); err != nil {
-		log.WithError(err).Fatal("Failed to render")
+		logger.Fatal().Err(err).Msg("Failed to render")
 	}
 	if outputFile == "" {
 		io.Copy(os.Stdout, &output)
 	} else {
 		fp, err := os.OpenFile(outputFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 		if err != nil {
-			log.WithError(err).Fatal("Failed to open output file")
+			logger.Fatal().Err(err).Msg("Failed to open output file")
 		}
 		defer fp.Close()
 		if _, err := io.Copy(fp, &output); err != nil {
-			log.WithError(err).Fatal("Failed to write to output file")
+			logger.Fatal().Err(err).Msg("Failed to write to output file")
 		}
 	}
 }
